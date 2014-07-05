@@ -11,8 +11,10 @@ public class P5SmallestMultiple
  * What is the smallest positive number that is evenly divisible by all 
  * of the numbers from 1 to 20?
  */
+	
 	public static boolean isPrime(long number)
 	{
+		if(number >= -1 && number <= 1) return false;
 		if(number % 2 == 0 && number != 2) return false;
 		
 		for(int i = 3;i*i<=number;i+=2)

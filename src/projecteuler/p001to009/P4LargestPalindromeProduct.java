@@ -8,6 +8,7 @@ public class P4LargestPalindromeProduct
  *
  * Find the largest palindrome made from the product of two 3-digit numbers.
  */
+	
 	public static boolean isPalindrome(int number)
 	{
 		String k = Integer.toString(number);

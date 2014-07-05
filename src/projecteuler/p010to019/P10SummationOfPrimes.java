@@ -7,6 +7,7 @@ public class P10SummationOfPrimes
  * 
  * Find the sum of all the primes below two million.
  */
+	
 	private static final int MAXPRIME = 2000000;
 	
 	public static void main(String[] args)
