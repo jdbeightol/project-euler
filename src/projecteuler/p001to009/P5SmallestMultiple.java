@@ -28,7 +28,7 @@ public class P5SmallestMultiple
 	 * common multiple (LCM), n such that n is the product of the greatest 
 	 * number of occurrences of its prime factors.
 	 *
-	 * eg. 2520 = 2 * 2 * 2 * 3 * 3 * 5 * 7 
+	 * eg. 2520 = 2 * 2 * 2 * 3 * 3 * 5 * 7
 	 *                or
 	 * n is the product of 2 to the third, 3 squared, 5, and 7
 	 * 
@@ -38,7 +38,7 @@ public class P5SmallestMultiple
 	
 	public static void main(String[] args)
 	{
-		int MAX = 20;
+		int MAX = 100;
 		long product = 1;
 
 		HashMap<Long,Integer> factorList = new HashMap<Long,Integer>();

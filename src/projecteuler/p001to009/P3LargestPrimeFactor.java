@@ -12,31 +12,31 @@ public class P3LargestPrimeFactor
 	
 	private static long INPUTNUMBER = 600851475143L;
 	
+	private static ArrayList<Long> factorArray = new ArrayList<Long>();
+
 	public static void main(String[] args) 
 	{
 		long startTime = System.nanoTime(), endTime;
 		System.out.println("Finding largest prime factor of " + INPUTNUMBER);
 
-		ArrayList<Long> factorArray = new ArrayList<Long>();
-						
 		if(INPUTNUMBER % 2 == 0) factorArray.add((long)2);
 
-		for(long i = 3;i<=INPUTNUMBER;i+=2)
-		{
+		for(long i = 3;i*i<=INPUTNUMBER;i+=2)
 			if(INPUTNUMBER % i == 0)
+				if(isPrime(i)) factorArray.add(i);
+		
+		ArrayList<Long> divisorArray = new ArrayList<Long>();
+		
+		for(long l : factorArray)
+			for(int i = 1; i <= Math.log(INPUTNUMBER)/Math.log(l); i++)
 			{
-				boolean isPrime = true;
+				long divisor = (long)(INPUTNUMBER/Math.pow(l,i));
 				
-				for(long l : factorArray)
-					if(i % l == 0)
-					{
-						isPrime = false;
-						break;
-					}
-				
-				if(isPrime) factorArray.add(i);				
+				if(divisor != 1 && INPUTNUMBER % divisor == 0 && isPrime(divisor) && !factorArray.contains(divisor))
+					divisorArray.add(divisor);
 			}
-		}
+		
+		factorArray.addAll(divisorArray);
 		
 		endTime = System.nanoTime();
 		
@@ -46,5 +46,14 @@ public class P3LargestPrimeFactor
 		
 		if(!factorArray.isEmpty())
 			System.out.println("Largest prime factor: " + factorArray.get(factorArray.size() - 1));	
+	}
+	
+	private static boolean isPrime(long i)
+	{
+		for(long l : factorArray)
+			if(i % l == 0)
+				return false;
+		
+		return true;
 	}
 }
