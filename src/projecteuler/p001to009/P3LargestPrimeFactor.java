@@ -10,7 +10,7 @@ public class P3LargestPrimeFactor
  * What is the largest prime factor of the number 600851475143?
  */
 	
-	private static long INPUTNUMBER = Integer.MAX_VALUE + 2L;//600851475143L;
+	private static long INPUTNUMBER = 600851475143L;
 	
 	public static void main(String[] args) 
 	{
