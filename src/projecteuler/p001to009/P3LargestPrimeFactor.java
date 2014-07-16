@@ -1,6 +1,7 @@
 package projecteuler.p001to009;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class P3LargestPrimeFactor 
 {
@@ -13,43 +14,60 @@ public class P3LargestPrimeFactor
 	private static long INPUTNUMBER = 600851475143L;
 	
 	private static ArrayList<Long> factorArray = new ArrayList<Long>();
-
+	
 	public static void main(String[] args) 
 	{
 		long startTime = System.nanoTime(), endTime;
+		long inSqrt = (long)Math.sqrt(INPUTNUMBER);
+		
 		System.out.println("Finding largest prime factor of " + INPUTNUMBER);
-
+		
+		// Since we will skip all even numbers, we must check if 2 is a prime factor.
 		if(INPUTNUMBER % 2 == 0) factorArray.add((long)2);
-
-		for(long i = 3;i*i<=INPUTNUMBER;i+=2)
+		
+		// We will check all odd numbers up to the square root of the input number for prime divisors.
+		for(long i = 3;i <= inSqrt; i += 2)
 			if(INPUTNUMBER % i == 0)
-				if(isPrime(i)) factorArray.add(i);
+				if(isPrime(i)) 
+					factorArray.add(i);
 		
-		ArrayList<Long> divisorArray = new ArrayList<Long>();
+		long n = INPUTNUMBER;
 		
-		for(long l : factorArray)
-			for(int i = 1; i <= Math.log(INPUTNUMBER)/Math.log(l); i++)
-			{
-				long divisor = (long)(INPUTNUMBER/Math.pow(l,i));
-				
-				if(divisor != 1 && INPUTNUMBER % divisor == 0 && isPrime(divisor) && !factorArray.contains(divisor))
-					divisorArray.add(divisor);
-			}
+		Stack<Long> divisorArray = new Stack<Long>();		
 		
-		factorArray.addAll(divisorArray);
+		// Find any remaining divisors.
+		for(long j : factorArray)
+			while(n % j == 0)
+				if((n /= j) != 1)
+					divisorArray.push(n);
+		
+		// Check if the remaining divisors are prime.
+		while(!divisorArray.isEmpty())
+		{
+			long k = divisorArray.pop();
+			
+			if(isPrime(k) && !factorArray.contains(k)) factorArray.add(k);
+		}
 		
 		endTime = System.nanoTime();
 		
 		System.out.println("Calculation completed in " + (endTime - startTime) / 1000000000.0 + " seconds.");
-
+		
 		System.out.println("Factors: " + factorArray);
 		
 		if(!factorArray.isEmpty())
-			System.out.println("Largest prime factor: " + factorArray.get(factorArray.size() - 1));	
+			System.out.println("Largest prime factor: " + factorArray.get(factorArray.size() - 1));
 	}
 	
 	private static boolean isPrime(long i)
 	{
+		/* 
+		 * Given that a composite number is always greater than its prime factors.
+		 *
+		 * We can assume that if a number, n, is divisible by a number m, and m is 
+		 * not divisible by any of the factors of n that are less than m, then m must be prime.
+		 */
+		
 		for(long l : factorArray)
 			if(i % l == 0)
 				return false;
