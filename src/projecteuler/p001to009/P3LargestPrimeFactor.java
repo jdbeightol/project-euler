@@ -11,7 +11,7 @@ public class P3LargestPrimeFactor
  * What is the largest prime factor of the number 600851475143?
  */
 	
-	private static long INPUTNUMBER = 600851475143L;
+	private static long INPUTNUMBER = Long.MAX_VALUE;
 	
 	private static ArrayList<Long> factorArray = new ArrayList<Long>();
 	
@@ -52,11 +52,15 @@ public class P3LargestPrimeFactor
 		endTime = System.nanoTime();
 		
 		System.out.println("Calculation completed in " + (endTime - startTime) / 1000000000.0 + " seconds.");
-		
-		System.out.println("Factors: " + factorArray);
-		
+				
 		if(!factorArray.isEmpty())
+		{
+			System.out.println("Distinct Prime Factors: " + factorArray);
 			System.out.println("Largest prime factor: " + factorArray.get(factorArray.size() - 1));
+		}
+		
+		else
+			System.out.println("Either " + INPUTNUMBER + " is prime, or something bad happened.");			
 	}
 	
 	private static boolean isPrime(long i)
