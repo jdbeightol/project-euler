@@ -2,8 +2,16 @@ package experiments;
 
 public class BigSieve 
 {
-	private static final long INPUT_NUMBER = 2233582;
 	private static final int MAX_CHUNK_SIZE = 536870912;
+	
+	private static final String
+		INFO_SIEVE_MEMORY = "The sieve will require a minimum of %s of memory (%dx%s).\n",
+		ERR_MAX_VALUE = "You should never see this. Though the maximum value this implementation can " +
+				"handle is 36,893,488,113,059,364,872; the maximum value a 64-bit signed long can " +
+				"have is 9,223,372,036,854,775,807.",
+		ERR_CHUNK = "The arrays cannot be initialized. Please increase the MAX_CHUNK_SIZE.",
+		ERR_MEMORY = "The JVM does not have enough memory available to complete this computation.",
+		ERR_SIZEMATTERS = "A calculation cannot be completed on integers less than or equal to 1.";
 	
 	public static void main(String[] args) 
 	{
@@ -11,72 +19,79 @@ public class BigSieve
 		System.out.println("[JVM] Memory Total:  " + getNamedSize(Runtime.getRuntime().totalMemory()));
 		System.out.println("[JVM] Memory Free:   " + getNamedSize(Runtime.getRuntime().freeMemory()));
 		
-		System.out.println("\nFinding largest prime factor of " + INPUT_NUMBER);
-		
-		bigSieve(INPUT_NUMBER);
+		bigSieve(-354903);
 	}
 	
-	private static void bigSieve(long inputNumber)
+	private static void bigSieve(long maxValue)
 	{
+		int bytesPerArray;
 		long startTime = System.nanoTime(), endTime;
 		
-		final long sqrtTN = (long)Math.sqrt(inputNumber) + 1;
-		final long totalBytes = inputNumber / 16;
+		final long maxSqrt = (long)Math.ceil(Math.sqrt(maxValue));
+		final long bytesRequired = (long)Math.ceil(maxValue / 16.0);
 		
-		final int bytesPerArray = MAX_CHUNK_SIZE;
-		final int arrayCount = (int)(totalBytes / bytesPerArray + 1);
-		final int lastArrayCount = (int)(inputNumber / 16 % bytesPerArray + 1);
+		if(bytesRequired < MAX_CHUNK_SIZE)
+			bytesPerArray = (int)bytesRequired + 1;
+		else
+			bytesPerArray = MAX_CHUNK_SIZE;
 		
-		final long totalAllocatedSize = (long)Math.round((arrayCount-1)) * bytesPerArray + lastArrayCount;
+		final int arrayCount = (int)Math.ceil(((double)bytesRequired) / bytesPerArray);				
+		final long totalAllocatedSize = ((long)arrayCount) * bytesPerArray;
 		
-		System.out.println("The sieve will require " + getNamedSize(totalAllocatedSize) + " of memory (" 
-		+ (arrayCount - 1) + "x" +  getNamedSize(bytesPerArray, true) + " + " + getNamedSize(lastArrayCount,true) + ")");
+		System.out.printf(INFO_SIEVE_MEMORY, getNamedSize(totalAllocatedSize, true), 
+				arrayCount, getNamedSize(bytesPerArray));
 		
-		if(totalBytes > 4611686014132420609L)
-			System.out.println("You should never see this. Though the maximum value this implementation can handle "
-					+ "is 36,893,488,113,059,364,872; the maximum value a 64-bit signed long can have is 9,223,372,036,854,775,807");
+		if(bytesRequired > 4611686014132420609L)
+			System.out.println(ERR_MAX_VALUE);
 		
-		else if(totalBytes / bytesPerArray + 1 > Integer.MAX_VALUE && MAX_CHUNK_SIZE < Integer.MAX_VALUE)
-			System.out.println("The arrays cannot be initialized. Please increase the MAX_CHUNK_SIZE.");
+		else if(bytesRequired / bytesPerArray + 1 > Integer.MAX_VALUE && MAX_CHUNK_SIZE < Integer.MAX_VALUE)
+			System.out.println(ERR_CHUNK);
 		
 		else if(totalAllocatedSize > Runtime.getRuntime().maxMemory())
-			System.out.println("The JVM does not have enough memory available to complete this computation.");
+			System.out.println(ERR_MEMORY);
+		
+		else if(maxValue < 2)
+			System.out.println(ERR_SIZEMATTERS);
 		
 		else
 		{
+			System.out.printf("\nSIZEREQ[%s] ALLOCATED[%d B] BYTESPERARRAY[%s] ARRAYS[%d] MAXVALUE[%d] SQRT[%d]\n",
+					getNamedSize(bytesRequired), totalAllocatedSize, getNamedSize(bytesPerArray),
+					arrayCount, (totalAllocatedSize - 1) * 16 - 1, maxSqrt);
+			
+			System.out.println("Finding largest prime factor of " + maxValue);
 			System.out.println("Initializing the Sieve of Eratosthenes...");
 			
 			byte[][] sieve = new byte[arrayCount][bytesPerArray];
-			sieve[sieve.length-1] = new byte[lastArrayCount];
-						
-			System.out.println("Calculating primes...");
 			
-			for(long i = 3; i <= sqrtTN; i+=2)
+			System.out.print("Calculating primes...");
+			
+			for(long i = 3; i <= maxSqrt; i += 2)
 			{
 				long iOver16 	= i / 16;
 				
-				int arrayIndex 	= (int)(iOver16 / bytesPerArray),
-					byteIndex 	= (int)(iOver16 % bytesPerArray),
-					bitIndex 	= (int)((i / 2) % 8);
+				int arrayIndexI	= (int)(iOver16 / bytesPerArray),
+					byteIndexI	= (int)(iOver16 % bytesPerArray),
+					bitIndexI	= (int)((i / 2) % 8);
 				
-				if((sieve[arrayIndex][byteIndex] & (1 << bitIndex)) == 0)
-					for(long j=i*i; j <= inputNumber; j += i * 2)
+				if((sieve[arrayIndexI][byteIndexI] & (1 << bitIndexI)) == 0)
+					for(long j=i*i; j <= maxValue; j += i * 2)
 					{
 						long jOver16 	= j / 16;
 						
 						int arrayIndexJ = (int)(jOver16 / bytesPerArray),
 							byteIndexJ 	= (int)(jOver16 % bytesPerArray),
 							bitIndexJ 	= (int)((j / 2) % 8);
-						
-						if(j == 7) System.out.println("Marking composite: " + j);
-						
+												
 						sieve[arrayIndexJ][byteIndexJ] |= (1 << bitIndexJ);
 					}
 			}
 			
+			System.out.println("done.");
+			
 			boolean bool = false;
 			
-			for(long k = inputNumber; k > 0 && !bool; k--)
+			for(long k = (maxValue % 2 == 1)?maxValue:maxValue - 1; k > 0 && !bool; k -= 2)
 			{
 				long kOver16 	= k / 16;
 				
@@ -84,19 +99,25 @@ public class BigSieve
 					byteIndex 	= (int)(kOver16 % bytesPerArray),
 					bitIndex 	= (int)((k / 2) % 8);
 				
-				if((sieve[arrayIndex][byteIndex] & (1 << bitIndex)) == 0 && (bool = !bool))
-					System.out.println("Largest prime found: " + k);
+				if(maxValue == 2)
+					System.out.println("Largest Prime: 2");
+				
+				else if((sieve[arrayIndex][byteIndex] & (1 << bitIndex)) == 0 && (bool = !bool) && k != 1)
+					System.out.println("Largest Prime: " + k);
+				
+				else
+					System.out.println("Strange. No primes were found.");
 			}
 			
 			endTime = System.nanoTime();				
-			System.out.println("Computation completed in " + (endTime - startTime) / 1000000000.0 + " seconds.");
-		}
+			System.out.println("Computation completed in " + (endTime - startTime) / 1000000000.0 + " seconds.");	
+		}		
 	}
 	
 	public static String getNamedSize(long sizeInBytes)
 	{	return getNamedSize(sizeInBytes, false);	}
 	
-	private static String getNamedSize(long sizeInBytes, boolean longName)
+	public static String getNamedSize(long sizeInBytes, boolean longName)
 	{
 		long size[] = new long[2];
 		
