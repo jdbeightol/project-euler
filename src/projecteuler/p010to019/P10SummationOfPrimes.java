@@ -12,20 +12,16 @@ public class P10SummationOfPrimes
 	
 	public static void main(String[] args)
 	{
-		long startTime = System.nanoTime(), endTime;
-		long sum = 0;
+		long startTime = System.nanoTime(), endTime, sum = 0;
 		boolean[] primeList = new boolean[MAXPRIME + 1];
 				
-		for(int i=2; i <= MAXPRIME; i++)
-			primeList[i] = true;
-		
 		for(int m=2; m*m <= MAXPRIME; m++)
-			if(primeList[m])
+			if(!primeList[m])
 				for(int n=m; m*n <= MAXPRIME; n++)
-					primeList[m*n] = false;
+					primeList[m*n] = true;
 		
 		for(int x = 2; x <= MAXPRIME; x++)
-			if(primeList[x])
+			if(!primeList[x])
 				sum += x; 
 		
 		endTime = System.nanoTime();
