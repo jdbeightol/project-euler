@@ -11,7 +11,7 @@ public class P3LargestPrimeFactor
  * What is the largest prime factor of the number 600851475143?
  */
 	
-	private static long INPUTNUMBER = 600851475143L;
+	private static long INPUTNUMBER = 2162160;
 	
 	private static ArrayList<Long> factorArray = new ArrayList<Long>();
 	
